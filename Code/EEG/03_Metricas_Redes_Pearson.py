@@ -120,10 +120,6 @@ for paciente in range(np.shape(x_c)[0]):
 
 
 def flatten_matrices(arr):
-    """
-    Recebe array no formato [paciente, onda, matriz_adj]
-    Retorna array no formato [paciente, onda, features_flatten]
-    """
 
     n_pac, n_ondas, _, _ = arr.shape
     return arr.reshape(n_pac, n_ondas, -1)
@@ -285,6 +281,8 @@ for paciente in range(np.shape(x_c)[0]):
 
 metricas = ['Grau Médio', 'Var dist grau', 'Mutual Information', 'Kurtosis', 'Entropia do grau',
             'Coeficiente de aglomeração médio', 'Menor caminho médio']
+metricas_h = ['Grau Médio', 'Var dist grau', 'Kurtosis', 'Entropia do grau',
+            'Coeficiente de aglomeração médio', 'Menor caminho médio']
 
 resultados_metricas_a_pearson = np.array(
     [grau_medio_a_pear, variancia_a_pearson, mutual_information_a, kurtosis_a_pearson, entropia_a_pearson,
@@ -293,10 +291,10 @@ resultados_metricas_c_pearson = np.array(
     [grau_medio_c_pear, variancia_c_pearson, mutual_information_c, kurtosis_c_pearson, entropia_c_pearson,
      agrupamento_medio_c_pearson, menor_caminho_medio_c_pearson])
 resultados_metricas_a_hilbert = np.array(
-    [grau_medio_a_hilbert, variancia_a_hilbert, mutual_information_a, kurtosis_a_hilbert, entropia_a_hilbert,
+    [grau_medio_a_hilbert, variancia_a_hilbert, kurtosis_a_hilbert, entropia_a_hilbert,
      agrupamento_medio_a_hilbert, menor_caminho_medio_a_hilbert])
 resultados_metricas_c_hilbert = np.array(
-    [grau_medio_c_hilbert, variancia_c_hilbert, mutual_information_c, kurtosis_c_hilbert, entropia_c_hilbert,
+    [grau_medio_c_hilbert, variancia_c_hilbert, kurtosis_c_hilbert, entropia_c_hilbert,
      agrupamento_medio_c_hilbert, menor_caminho_medio_c_hilbert])
 
 np.save("Metricas/Metricas_autistas_pearson.npy", resultados_metricas_a_pearson)
