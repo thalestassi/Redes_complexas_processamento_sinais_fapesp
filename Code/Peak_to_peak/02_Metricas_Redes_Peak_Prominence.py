@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
-from scipy.stats import skew, kurtosis, entropy
+from sklearn.metrics import mutual_info_score
+from scipy.stats import kurtosis, entropy
 
 
 '''
@@ -21,10 +22,45 @@ x_c = xxx[1]  # control data
 ondas = ['delta', 'theta', 'alpha', 'beta', 'gamma']
 ondas_latex = [r'Ondas $\delta$', r'Ondas $\theta$', r'Ondas $\alpha$', r'Ondas $\beta$', r'Ondas $\gamma$']
 
-metricas = ['Grau Médio', 'Var dist grau', 'Skewness', 'Kurtosis',
-            'Entropia do grau', 'Coeficiente de aglomeração médio', 'Menor caminho médio']
+metricas = ['Grau Médio', 'Var dist grau', 'Mutual Information', 'Kurtosis', 'Entropia do grau',
+            'Coeficiente de aglomeração médio', 'Menor caminho médio']
 
 prominencias = np.round(np.arange(0.00, 0.7, 0.1), 2)
+matrizes_a_pearson = np.load('Matrizes_Adjacencia/Matrizes_adjacencia_autista_pearson.npy')
+matrizes_c_pearson = np.load('Matrizes_Adjacencia/Matrizes_adjacencia_controle_pearson.npy')
+
+def flatten_matrices(arr):
+    """
+    Recebe array no formato [paciente, onda, matriz_adj]
+    Retorna array no formato [paciente, onda, features_flatten]
+    """
+
+    n_pac, n_ondas, _, _ = arr.shape
+    return arr.reshape(n_pac, n_ondas, -1)
+
+
+'''
+Mutual Information
+'''
+
+
+def mutual_information(grupo1, grupo2):
+    n_pac, n_ondas, n_feat = grupo1.shape
+    mi = np.zeros((n_pac, n_ondas))
+    for i in range(n_pac):
+        for j in range(n_ondas):
+            x = grupo1[i, j, :]
+            y = grupo2[i, j, :]
+            x_discr = np.digitize(x, np.histogram(x, bins=10)[1])
+            y_discr = np.digitize(y, np.histogram(y, bins=10)[1])
+            mi[i, j] = mutual_info_score(x_discr, y_discr)
+    return mi
+
+
+
+
+
+
 
 for p_idx, p in enumerate(prominencias):
     print(f"Analisando prominência: {p}")
@@ -78,18 +114,14 @@ for p_idx, p in enumerate(prominencias):
             variancia_c_peak[paciente, onda] = variancia
 
     '''
-    Skewness
+    MI
     '''
+    mutual_information_a_peak = mutual_information(flatten_matrices(matrizes_a_pearson),
+                                              flatten_matrices(matrizes_a_peak))
+    mutual_information_c_peak = mutual_information(flatten_matrices(matrizes_c_pearson),
+                                              flatten_matrices(matrizes_c_peak))
 
-    skewness_a_peak = np.zeros((np.shape(x_a)[0], len(ondas)))
-    for paciente in range(np.shape(x_a)[0]):
-        for onda in range(len(ondas)):
-            skewness_a_peak[paciente, onda] = skew(grau_cada_linha_a_peak[paciente, onda])
 
-    skewness_c_peak = np.zeros((np.shape(x_a)[0], len(ondas)))
-    for paciente in range(np.shape(x_a)[0]):
-        for onda in range(len(ondas)):
-            skewness_c_peak[paciente, onda] = skew(grau_cada_linha_c_peak[paciente, onda])
 
     '''
     Kurtosis
@@ -167,10 +199,10 @@ for p_idx, p in enumerate(prominencias):
             assortatividade_grau_c_peak[paciente, onda] = nx.degree_assortativity_coefficient(G, weight="weight")
 
     resultados_metricas_a_peak = np.array(
-        [grau_medio_a_peak, variancia_a_peak, skewness_a_peak, kurtosis_a_peak, entropia_a_peak,
+        [grau_medio_a_peak, variancia_a_peak, matrizes_a_peak, kurtosis_a_peak, entropia_a_peak,
          agrupamento_medio_a_peak, menor_caminho_medio_a_peak])
     resultados_metricas_c_peak = np.array(
-        [grau_medio_c_peak, variancia_c_peak, skewness_c_peak, kurtosis_c_peak, entropia_c_peak,
+        [grau_medio_c_peak, variancia_c_peak, matrizes_c_peak, kurtosis_c_peak, entropia_c_peak,
          agrupamento_medio_c_peak, menor_caminho_medio_c_peak])
 
     fig, axs = plt.subplots(len(ondas), len(metricas), figsize=(22, 12))  #

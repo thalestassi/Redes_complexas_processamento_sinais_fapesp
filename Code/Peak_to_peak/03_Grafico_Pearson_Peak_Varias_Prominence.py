@@ -60,7 +60,7 @@ for p_idx, p in enumerate(prominencias):
     for ax in axs[1, :]:
         ax.set_xlabel(r'Correlação de Pearson ($\rho_{pq}$)')
     for ax in axs[:, 0]:
-        ax.set_ylabel(r'Sincronização de Fase (Hilbert, $r_{pq}$)')
+        ax.set_ylabel(r'Sincronização de Fase (Peak-to-Peak, $phi_{pq}$)')
     for ax in axs.flat:
         ax.tick_params(axis='y', labelleft=True)
 
